@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Quiz</title>
+    <!-- Use Firebase compat scripts for namespaced API -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #00ff88;
+            text-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+        }
+    
+        form {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+    
+        label {
+            display: block;
+            margin: 1.5rem 0 0.5rem;
+            font-weight: 500;
+            color: #00ccff;
+        }
+    
+        select, input, textarea {
+            width: 100%;
+            padding: 12px 18px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+    
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 0 3px rgba(0, 255, 136, 0.2);
+        }
+    
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+    
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 1rem 0;
+        }
+    
+        button {
+            background: linear-gradient(135deg, #00ff88 0%, #00ccff 100%);
+            color: #16213e;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+        }
+    
+        select option {
+            background: #16213e;
+            color: #fff;
+        }
+    
+        @media (max-width: 768px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            form {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+    <script>
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyCayGcfnpCAGNDph3YTyEA9_KDdD2C5Fg0",
+            authDomain: "my-tiktok-cbd6f.firebaseapp.com",
+            databaseURL: "https://my-tiktok-cbd6f-default-rtdb.firebaseio.com",
+            projectId: "my-tiktok-cbd6f",
+            storageBucket: "my-tiktok-cbd6f.firebasestorage.app",
+            messagingSenderId: "964441294320",
+            appId: "1:964441294320:web:4c8da74a0cee8ed2644935",
+            measurementId: "G-RYBWW6XB10"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        function postQuiz() {
+            const grade = document.getElementById("grade").value;
+            const subject = document.getElementById("subject").value;
+            const question = document.getElementById("question").value;
+            const optionA = document.getElementById("optionA").value;
+            const optionB = document.getElementById("optionB").value;
+            const optionC = document.getElementById("optionC").value;
+            const optionD = document.getElementById("optionD").value;
+            const correctAnswer = document.getElementById("correctAnswer").value.toUpperCase(); // Ensure uppercase
+
+            // Simple validation
+            if (!grade || !subject || !question || !optionA || !optionB || !optionC || !optionD || !correctAnswer) {
+                alert("Please fill in all fields!");
+                return;
+            }
+
+            const quizData = {
+                grade: grade,
+                subject: subject,
+                question: question,
+                options: {
+                    A: optionA,
+                    B: optionB,
+                    C: optionC,
+                    D: optionD
+                },
+                correctAnswer: correctAnswer
+            };
+
+            // Push data directly to 'quizzes' node
+            const quizzesRef = db.ref('quizzes');
+            const newQuizRef = quizzesRef.push();
+            
+            newQuizRef.set(quizData)
+                .then(() => {
+                    alert("Quiz Posted Successfully!");
+                    document.querySelector("form").reset(); // Clear form
+                })
+                .catch((error) => {
+                    alert("Error posting quiz: " + error.message);
+                });
+        }
+    </script>
+</head>
+<body>
+    <!-- Form remains the same -->
+    <h1>Post a Quiz</h1>
+    <form>
+        <label for="grade">Grade:</label>
+        <select id="grade">
+            <option value="9">Grade 9</option>
+            <option value="10">Grade 10</option>
+            <option value="11">Grade 11</option>
+            <option value="12">Grade 12</option>
+        </select><br>
+
+        <label for="subject">Subject:</label>
+        <select id="subject">
+            <option value="English">English</option>
+            <option value="Math">Math</option>
+            <option value="Physics">Physics</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Biology">Biology</option>
+            <option value="History">History</option>
+            <option value="Afaan Oromoo">Afaan Oromoo</option>
+            <option value="Amharic">Amharic</option>
+            <option value="Civics">Civics</option>
+            <option value="ICT">ICT</option>
+        </select><br>
+
+        <label for="question">Question:</label><br>
+        <textarea id="question" rows="4" cols="50"></textarea><br>
+
+        <label for="optionA">Option A:</label>
+        <input type="text" id="optionA" required><br>
+        <label for="optionB">Option B:</label>
+        <input type="text" id="optionB" required><br>
+        <label for="optionC">Option C:</label>
+        <input type="text" id="optionC" required><br>
+        <label for="optionD">Option D:</label>
+        <input type="text" id="optionD" required><br>
+
+        <label for="correctAnswer">Correct Answer (A-D):</label>
+        <input type="text" id="correctAnswer" pattern="[A-Da-d]{1}" title="Enter A, B, C, or D" required><br>
+
+        <button type="button" onclick="postQuiz()">Post Quiz</button>
+    </form>
+</body>
+</html>
